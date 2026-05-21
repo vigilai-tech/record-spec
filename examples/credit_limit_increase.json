@@ -1,0 +1,239 @@
+{
+  "record_id": "c7e2a9f4-1d8b-4c3e-a7f2-9b5d3e1c8a0f",
+  "timestamp": "2026-05-20T14:03:17.556Z",
+  "agent_id": "credit-decisioning-agent",
+  "agent_version": "1.8.0",
+  "schema_version": "0.1.0",
+  "model_id": "claude-sonnet-4-6",
+  "jurisdiction": "US",
+  "authority_basis": [
+    "ecoa_reg_b.s202_9",
+    "eu_ai_act.art_86",
+    "sr_11_7.model_risk",
+    "sox.s302"
+  ],
+  "operating_domain": "supervised",
+  "openinference_span_id": "9e4c1a7f3b8d2e6c",
+
+  "decision_lineage": {
+    "parent_trace_id": "3b7e1f9a5c2d8f4b6e0a3c7f9d2b5e8a",
+    "case_id": "CLR-2026-APP-073214",
+    "investigation_thread_id": "THREAD-CLI-MAY20-073214"
+  },
+
+  "influencing_parameters": [
+    {
+      "factor": "fico_score",
+      "value": 718,
+      "weight": 0.31
+    },
+    {
+      "factor": "current_utilization_rate",
+      "value": 0.34,
+      "weight": 0.22
+    },
+    {
+      "factor": "on_time_payment_streak_months",
+      "value": 27,
+      "weight": 0.18
+    },
+    {
+      "factor": "dti_ratio",
+      "value": 0.38,
+      "weight": 0.14
+    },
+    {
+      "factor": "account_tenure_months",
+      "value": 31,
+      "weight": 0.09
+    },
+    {
+      "factor": "recent_hard_inquiries_12m",
+      "value": 2,
+      "weight": 0.06
+    }
+  ],
+
+  "policy_evaluation": [
+    {
+      "rule_id": "CLI-P1-FICO-THRESHOLD",
+      "rule_name": "Minimum FICO Score for CLI",
+      "verdict": "pass",
+      "confidence": 0.99,
+      "notes": "FICO score of 718 exceeds the minimum threshold of 680 for CLI eligibility. Score is current as of 2026-05-01 bureau pull."
+    },
+    {
+      "rule_id": "CLI-P2-UTILIZATION",
+      "rule_name": "Utilization Rate Within CLI Band",
+      "verdict": "pass",
+      "confidence": 0.97,
+      "notes": "Current utilization of 34% is within the 15–55% CLI eligibility band. Utilization is not so low as to suggest unused credit (floor) or so high as to suggest credit stress (ceiling)."
+    },
+    {
+      "rule_id": "CLI-P3-PAYMENT-HISTORY",
+      "rule_name": "On-Time Payment Streak",
+      "verdict": "pass",
+      "confidence": 0.99,
+      "notes": "27 consecutive on-time payments. No delinquency in the account's 31-month history. Zero missed payments."
+    },
+    {
+      "rule_id": "CLI-P4-DTI-RATIO",
+      "rule_name": "Debt-to-Income Ratio Ceiling",
+      "verdict": "fail",
+      "confidence": 0.88,
+      "notes": "DTI of 38% exceeds the preferred CLI ceiling of 36%. This is a marginal exceedance (2 percentage points) and does not trigger a hard decline, but it warrants a reduced CLI increment under policy CLI-TIER-B. Under ECOA, DTI is a permissible, non-discriminatory factor."
+    },
+    {
+      "rule_id": "CLI-P5-HARD-INQUIRIES",
+      "rule_name": "Recent Hard Inquiry Count",
+      "verdict": "pass",
+      "confidence": 0.94,
+      "notes": "2 hard inquiries in 12 months is within the allowable maximum of 4. No inquiry clustering (no more than 1 in a 30-day window) that would suggest credit shopping distress."
+    },
+    {
+      "rule_id": "CLI-P6-ECOA-ADVERSE-ACTION",
+      "rule_name": "ECOA Adverse-Action Notice Requirement Assessment",
+      "verdict": "not_applicable",
+      "confidence": 0.99,
+      "notes": "Agent is recommending approval (CLI granted, amount modified). ECOA §202.9 adverse-action notice obligations do not apply to approvals. If the human analyst overrides to a denial, the system must generate a §202.9-compliant notice."
+    }
+  ],
+
+  "data_at_decision": [
+    {
+      "source": "equifax-credit-bureau",
+      "query": "ssn_hash=SHA256:a3f9c2e1b4d7f0a8e5c3b0d7f4a1e8b5&pull_reason=CLI_REVIEW&pull_date=2026-05-01",
+      "payload_hash": "b4d1f8a5e2c9f6b3e0d7c4f1a8e5b2d9c6f3a0e7b4d1c8f5a2e9b6d3c0f7a4e1",
+      "payload_preview": "{\"fico_score\":718,\"score_date\":\"2026-05-01\",\"derogatory_marks\":0,\"collections\":0,\"public_records\":0,\"hard_inquiries_12m\":2,\"on_time_pct\":100,\"oldest_tradeline_months\":84}"
+    },
+    {
+      "source": "income-verification-db",
+      "query": "customer_id=CID-442-MORALES&verification_date=2026-04-15",
+      "payload_hash": "c6f3a0e7b4d1c8f5a2e9b6d3c0f7a4e1b8d5c2f9a6e3b0d7c4f1a8e5b2f9a6e3",
+      "payload_preview": "{\"customer_id\":\"CID-442-MORALES\",\"verified_annual_income_usd\":72000,\"income_type\":\"W2_employment\",\"verification_method\":\"IRS_4506C\",\"verification_date\":\"2026-04-15\",\"employer\":\"[REDACTED]\",\"dti_current\":0.38}"
+    },
+    {
+      "source": "internal-account-ledger",
+      "query": "account_id=ACC-CLI-8819-MORALES&fields=[balance,credit_limit,payment_history,utilization,tenure]",
+      "payload_hash": "d8e5c2f9a6b3e0d7f4a1e8b5d2c9f6a3e0b7d4c1f8a5e2b9c6f3a0e7b4d1c8f5",
+      "payload_preview": "{\"account_id\":\"ACC-CLI-8819-MORALES\",\"current_limit_usd\":5000,\"current_balance_usd\":1700,\"utilization\":0.34,\"payment_history\":[\"on_time\",...27 consecutive],\"tenure_months\":31,\"product\":\"Everyday Rewards Visa\"}"
+    }
+  ],
+
+  "prompt": "You are a Credit Decisioning Agent operating under ECOA Regulation B and SR 11-7 model risk governance. Your task is to evaluate credit limit increase request CLR-2026-APP-073214 for customer Morales, account ACC-CLI-8819-MORALES.\n\nRequest summary: Customer is requesting a credit limit increase on their Everyday Rewards Visa from $5,000 to $10,000 (a $5,000 increase). Account has been open 31 months with a perfect payment history (27 on-time payments). Current balance $1,700 on $5,000 limit (34% utilization). FICO 718 as of 2026-05-01.\n\nYou have access to the following tools: (1) credit_bureau — pull current FICO and tradeline summary; (2) income_verification — retrieve verified income and DTI; (3) account_ledger — retrieve account balance, payment history, and utilization.\n\nEvaluate each CLI policy rule (pass/fail/inconclusive/not_applicable) with confidence scores. Based on the policy evaluation, recommend an approved CLI amount (may differ from requested amount). Cite all factors used in the decision. Provide an ECOA §202.9 adverse-action reason list in the event the human analyst overrides to a denial or partial denial. Output the top four reasons by weight in rank order.",
+
+  "chain_of_thought": [
+    {
+      "step": 1,
+      "type": "observation",
+      "content": "Customer requests $5,000 CLI (from $5k to $10k). I will retrieve the three data sources (credit bureau, income verification, account ledger) before evaluating any policy rules, to ensure my recommendation is based on current data."
+    },
+    {
+      "step": 2,
+      "type": "tool_call_rationale",
+      "content": "Pulling all three data sources in parallel: credit bureau (FICO, inquiries, derogatory marks), income verification (DTI), and account ledger (balance, utilization, payment history)."
+    },
+    {
+      "step": 3,
+      "type": "observation",
+      "content": "Credit bureau: FICO 718 (current), 0 derogatory marks, 0 collections, 2 hard inquiries in 12 months. Account ledger: 27 consecutive on-time payments, 34% utilization, 31 months tenure. Income: $72,000 verified W-2, DTI 38%."
+    },
+    {
+      "step": 4,
+      "type": "analysis",
+      "content": "Policy rule evaluation: (P1) FICO 718 ≥ 680 → PASS. (P2) Utilization 34% within 15–55% band → PASS. (P3) 27 consecutive on-time payments → PASS. (P4) DTI 38% > 36% ceiling → FAIL (marginal, 2pp over). (P5) 2 hard inquiries ≤ 4 max → PASS. (P6) ECOA adverse-action notice → NOT APPLICABLE (approval scenario)."
+    },
+    {
+      "step": 5,
+      "type": "analysis",
+      "content": "Four of five applicable rules pass. DTI fails marginally (38% vs 36% ceiling). Under policy CLI-TIER-B, marginal DTI exceedance (1–5pp) triggers a reduced increment: the approved amount is capped at 50% of the requested increase. 50% × $5,000 = $2,500 approved increment → new limit of $7,500. However, policy also permits rounding to the nearest standard tier: $7,500 or $5,000 + $2,500 = $7,500 is a standard tier. Recommended: approve $7,500 new limit ($2,500 CLI)."
+    },
+    {
+      "step": 6,
+      "type": "conclusion",
+      "content": "My recommendation: approve CLI to $7,500 (a $2,500 increase, not the $5,000 requested). Primary limiting factor: DTI 38% exceeds 36% preferred ceiling. All other factors are positive. ECOA §202.9 adverse-action reason list (for use if analyst overrides to denial or further reduction), ranked by weight: (1) Debt-to-income ratio exceeds preferred threshold [weight 0.14]; (2) Amount of credit inquiries in past 12 months [weight 0.06]; (3) Proportion of balance to credit limit on revolving accounts [weight 0.22 — would become a reason if utilization were higher]; (4) Length of credit history [weight 0.09 — 31 months is moderate]."
+    }
+  ],
+
+  "tools_accessed": [
+    {
+      "tool_name": "credit_bureau",
+      "timestamp": "2026-05-20T14:03:19.221Z",
+      "query": "ssn_hash=SHA256:a3f9c2e1b4d7f0a8e5c3b0d7f4a1e8b5&pull_reason=CLI_REVIEW&pull_date=2026-05-01",
+      "latency_ms": 534
+    },
+    {
+      "tool_name": "income_verification",
+      "timestamp": "2026-05-20T14:03:19.301Z",
+      "query": "customer_id=CID-442-MORALES&verification_date=2026-04-15",
+      "latency_ms": 211
+    },
+    {
+      "tool_name": "account_ledger",
+      "timestamp": "2026-05-20T14:03:19.388Z",
+      "query": "account_id=ACC-CLI-8819-MORALES&fields=[balance,credit_limit,payment_history,utilization,tenure]",
+      "latency_ms": 98
+    }
+  ],
+
+  "tool_results": [
+    {
+      "tool_name": "credit_bureau",
+      "payload": {
+        "fico_score": 718,
+        "score_date": "2026-05-01",
+        "derogatory_marks": 0,
+        "collections": 0,
+        "public_records": 0,
+        "hard_inquiries_12m": 2,
+        "on_time_pct": 100,
+        "oldest_tradeline_months": 84
+      }
+    },
+    {
+      "tool_name": "income_verification",
+      "payload": {
+        "customer_id": "CID-442-MORALES",
+        "verified_annual_income_usd": 72000,
+        "income_type": "W2_employment",
+        "verification_method": "IRS_4506C",
+        "verification_date": "2026-04-15",
+        "dti_current": 0.38
+      }
+    },
+    {
+      "tool_name": "account_ledger",
+      "payload": {
+        "account_id": "ACC-CLI-8819-MORALES",
+        "current_limit_usd": 5000,
+        "current_balance_usd": 1700,
+        "utilization": 0.34,
+        "on_time_payments": 27,
+        "missed_payments": 0,
+        "tenure_months": 31,
+        "product": "Everyday Rewards Visa"
+      }
+    }
+  ],
+
+  "human_disposition": {
+    "action": "override",
+    "rationale": "Agent recommended a $7,500 new limit ($2,500 CLI). Analyst is overriding to $7,000 ($2,000 CLI). Reason: Internal credit committee guidance issued 2026-05-15 (memo CC-2026-014) reduces the CLI cap for accounts with DTI ≥ 37% to 40% of requested increment rather than 50%, effective immediately. 40% × $5,000 = $2,000. New limit: $7,000. This guidance was not yet reflected in the agent's policy ruleset version 1.8.0 — flagging for next policy update deployment (target 2026-06-01). ECOA basis for reduced CLI vs. requested: DTI ratio. No adverse-action notice required as an increase is being granted; however, if customer inquires why not $10,000, the response should cite DTI as the principal limiting factor under §202.9(b)(2) spirit-of-notice obligations.",
+    "analyst_id": "ANALYST-HASH-4b2e8f",
+    "reviewed_at": "2026-05-20T14:31:44.000Z"
+  },
+
+  "final_action": {
+    "type": "approve_modified",
+    "disposition": "Credit limit increase approved at $7,000 (customer requested $10,000; agent recommended $7,500; analyst override to $7,000 per credit committee memo CC-2026-014 issued 2026-05-15). New credit limit: $7,000. Limiting factor: DTI of 38% exceeds the committee's updated CLI threshold. All other factors (FICO 718, perfect payment history, utilization 34%, inquiry count) are positive. Agent policy ruleset flagged for update to reflect memo CC-2026-014 by 2026-06-01. No ECOA adverse-action notice required (partial approval granted). ECOA §202.9 reason list preserved in chain_of_thought step 6 for customer inquiry response.",
+    "severity_score": 2.1,
+    "escalated": false
+  },
+
+  "outcome_linkage": {
+    "type": "credit_adjustment",
+    "reference_id": "CAJ-2026-ACC-8819-073214",
+    "status": "completed",
+    "url": "https://creditops.internal/adjustments/CAJ-2026-ACC-8819-073214"
+  }
+}
