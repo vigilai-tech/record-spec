@@ -8,7 +8,7 @@ RECORD is an open standard that extends the [OpenInference](https://github.com/A
 
 The schema covers every layer of a financial AI agent's audit trail: regulatory authority linkage (`authority_basis`), operating-mode declaration (`operating_domain`), feature-level explainability (`influencing_parameters`), policy-rule evaluation logs (`policy_evaluation`), full chain-of-thought capture, tool-call inventories, data-source provenance hashes, human-disposition records, and downstream outcome linkage. Each field is tagged as **required**, **recommended**, or **optional** and is mapped in [REGULATORY_MAPPING.md](./REGULATORY_MAPPING.md) to the specific article or section of EU AI Act, MiFID II RTS 6, FinCEN AML NPRM 2026, SR 11-7, ECOA Regulation B §202.9, or SOX §302 that motivates its capture. This means compliance teams can use RECORD traces directly as primary evidence in regulatory submissions, model-risk governance packages, or SAR documentation without reformatting or post-hoc reconstruction.
 
-RECORD v0.1 is a community draft and welcomes contributions under the Apache 2.0 license. Three reference examples are included in the [examples/](./examples/) directory: a MiFID II trade-surveillance layering alert triaged by an L1 agent and escalated to L2 ([trade_surveillance_l1.json](./examples/trade_surveillance_l1.json)), a FinCEN AML wire-transfer triage with SAR narrative generation ([aml_triage.json](./examples/aml_triage.json)), and an ECOA-governed credit-limit recommendation where a human analyst overrides the agent's decision ([credit_limit_increase.json](./examples/credit_limit_increase.json)). All examples are valid against [schema.json](./schema.json) and are intended to serve as integration templates for teams building compliant AI agents in trading surveillance, financial crime, and consumer credit domains.
+RECORD v0.1 is a community draft and welcomes contributions under the Apache 2.0 license. Four reference examples are included in the [examples/](./examples/) directory: a MiFID II trade-surveillance layering alert triaged by an L1 agent and escalated to L2 ([trade_surveillance_l1.json](./examples/trade_surveillance_l1.json)), a FinCEN AML wire-transfer triage with SAR narrative generation ([aml_triage.json](./examples/aml_triage.json)), an ECOA-governed credit-limit recommendation where a human analyst overrides the agent's decision ([credit_limit_increase.json](./examples/credit_limit_increase.json)), and a MAR Art. 14 communication-surveillance case where an agent detects insider tipping via bookkeeping cross-reference of deal-room access logs, Bloomberg chat content, and counterparty options flow ([communication_surveillance_l1.json](./examples/communication_surveillance_l1.json)). All examples are valid against [schema.json](./schema.json) and are intended to serve as integration templates for teams building compliant AI agents in trading surveillance, financial crime, consumer credit, and communication monitoring domains.
 
 ## Quick Start
 
@@ -35,9 +35,10 @@ record-spec/
 ├── REGULATORY_MAPPING.md     # Field → regulation cross-reference
 ├── LICENSE                   # Apache 2.0
 └── examples/
-    ├── trade_surveillance_l1.json   # MiFID II layering alert, L1→L2 escalation
-    ├── aml_triage.json              # AML wire-transfer triage + SAR draft
-    └── credit_limit_increase.json   # ECOA credit decision with human override
+    ├── trade_surveillance_l1.json        # MiFID II layering alert, L1→L2 escalation
+    ├── aml_triage.json                   # AML wire-transfer triage + SAR draft
+    ├── credit_limit_increase.json        # ECOA credit decision with human override
+    └── communication_surveillance_l1.json # MAR Art.14 insider tipping, direct legal escalation
 ```
 
 ## Field Requirement Levels

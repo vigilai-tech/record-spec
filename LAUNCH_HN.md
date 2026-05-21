@@ -49,11 +49,12 @@ result = RecordValidator("schema.json").validate(doc)
 
 There's also an `adapt_span()` function that converts an OpenInference span dict into a RECORD dict for teams already instrumented with OTel.
 
-**Three realistic examples in the repo**
+**Four realistic examples in the repo**
 
 - MiFID II trade surveillance: L1 agent dispositions an AAPL layering alert (OTR 47.3, cancel ratio 91%), evaluates five RTS 6 rules, escalates to L2
 - FinCEN AML: agent reviews a $47k wire to a Liechtenstein private bank, queries sanctions + customer history, drafts a SAR narrative
 - ECOA credit: agent recommends a $5k limit increase, human analyst overrides to $2k citing a credit committee memo not yet in the agent's policy version
+- MAR Art. 14 communication surveillance: agent detects insider tipping in a Bloomberg chat — cross-references deal-room access logs (bookkeeping), NLP-scored message content, and counterparty options flow (Apex Capital opened a $2.1M NVDA put position 32 minutes after the chat); all three MAR Art. 14(3) tipping elements satisfied, direct escalation to Legal with evidence preservation trigger
 
 **What we're looking for**
 
