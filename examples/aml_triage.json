@@ -1,4 +1,16 @@
 {
+  "_comments": {
+    "overview": "This RECORD document captures a single decision turn by an LLM agent (claude-opus-4-6) acting as an AML triage analyst under FinCEN's 2026 AML NPRM. The AML transaction monitoring system detected a suspicious wire transfer and invoked the LLM with a structured prompt. Data flow: (1) AML monitoring platform flags the $47k wire and computes influencing_parameters[weight_source=ml_model] from transaction attributes and customer risk scores; (2) LLM receives prompt → calls four external APIs → receives tool_results; (3) LLM produces chain_of_thought evaluating five AML policy rules, drafts a SAR narrative, and outputs final_action; (4) human analyst (L2) reviews via human_disposition and confirms the SAR filing.",
+    "prompt": "FIELD TYPE: LLM input. Complete text delivered to the LLM: system role (AML Triage Agent), regulatory context (BSA/FinCEN 2026 NPRM), alert summary (wire amount, counterparty, flags), and descriptions of four available tools. The influencing_parameters values (transaction_amount, risk_rating, etc.) are injected here from the upstream AML scoring model as structured context. EU AI Act Art. 12 requires verbatim capture.",
+    "influencing_parameters": "FIELD TYPE: Two-tier. (A) weight_source=ml_model — four numeric/categorical features from the upstream AML transaction-monitoring model (transaction amount, customer risk rating, wire frequency, jurisdiction risk), with SHAP-style normalised feature importance weights. (B) weight_source=rule_engine — three boolean outputs from deterministic rule checks (structuring flag, sanctions hit, purpose code match); these have rule-priority weights, not statistical weights. (C) weight_source=llm_self_reported — two compound factors the LLM synthesised in chain_of_thought step 13: the purpose-code and business-purpose mismatch as a compound signal, and the PEP-adjacency combined with extreme pattern deviation. The LLM identified that these upstream signals amplify each other — a qualitative interaction the ML model scored independently.",
+    "data_at_decision": "FIELD TYPE: Data provenance inventory. SHA-256 hashes of four external data payloads: OFAC/EU/UN sanctions screen result, customer CIF profile, SWIFT MT103 parsed fields, and FATF jurisdiction risk assessment. Hashes allow regulators to verify the LLM acted on accurate, unaltered data (FinCEN BSA record retention, SOX §302). Distinct from tool_results — data_at_decision is the integrity record.",
+    "tools_accessed": "FIELD TYPE: API call request log (LLM-initiated). Four external API calls made by the LLM during reasoning: ofac_sanctions_screen (counterparty name + IBAN, fuzzy threshold 85%), customer_profile (CIF history + 540-day lookback), swift_message_parser (MT103 fields 50K/59/70/71A/32A), fatf_jurisdiction_risk (Liechtenstein 2024 MER). The LLM chose to call these in this order based on its reasoning — sanctions screening first as a hard blocker, then customer context, then message content, then jurisdiction risk.",
+    "tool_results": "FIELD TYPE: API call response log (LLM-received). Structured payloads returned by each of the four API calls. The LLM read these and incorporated them into its chain_of_thought. Notable: the OFAC screen returned zero matches (sanctions risk cleared), while the SWIFT parser revealed the purpose-code mismatch (field 70: '601 Investment securities' vs. prior history of '102 Trade goods') that became a key red flag.",
+    "chain_of_thought": "FIELD TYPE: LLM reasoning output. 13 steps. Steps 1–12 are the analytical process: sanctions screen first, then customer due diligence, then SWIFT message parsing, then jurisdiction risk, then structuring assessment, then policy rule evaluation, then SAR narrative drafting. Step 13 is the self-reporting step where the LLM names the two factors it found most decisive — the purpose-code compound incoherence and the PEP-adjacency interaction — which became the llm_self_reported influencing_parameters.",
+    "policy_evaluation": "FIELD TYPE: LLM output. Five AML policy rule verdicts: sanctions screen (pass), structuring detection (pass), customer risk elevated activity (fail), jurisdiction risk (fail), purpose code coherence (fail). Produced by the LLM after reading all tool results — not by the upstream AML monitoring model.",
+    "human_disposition": "FIELD TYPE: Human workflow system output. Filled AFTER the LLM completes its turn, by the L2 analyst reviewing the LLM's SAR narrative draft. action=confirm means the analyst agreed with the LLM's recommendation without override. The rationale and reviewed_at timestamp are entered by the analyst in the case management system and written back to the RECORD document.",
+    "final_action": "FIELD TYPE: LLM output. type=draft_sar means the LLM produced a SAR narrative but did not autonomously file — consistent with operating_domain=supervised. The LLM correctly deferred the filing decision to the human analyst. escalated=true reflects that the case moved from automated triage to human review queue."
+  },
   "record_id": "b9d4e7f2-3c1a-4b8e-9f5d-6a2e0c3b7d1f",
   "timestamp": "2026-05-20T11:22:47.889Z",
   "agent_id": "aml-triage-agent",
@@ -25,37 +37,56 @@
     {
       "factor": "transaction_amount_usd",
       "value": 47000,
-      "weight": 0.24
+      "weight": 0.24,
+      "weight_source": "ml_model"
     },
     {
       "factor": "structuring_flag",
       "value": false,
-      "weight": 0.08
+      "weight": 0.08,
+      "weight_source": "rule_engine"
     },
     {
       "factor": "counterparty_sanctions_hit",
       "value": false,
-      "weight": 0.22
+      "weight": 0.22,
+      "weight_source": "rule_engine"
     },
     {
       "factor": "customer_risk_rating",
       "value": "high",
-      "weight": 0.18
+      "weight": 0.18,
+      "weight_source": "ml_model"
     },
     {
       "factor": "customer_wire_frequency_30d",
       "value": 7,
-      "weight": 0.12
+      "weight": 0.12,
+      "weight_source": "ml_model"
     },
     {
       "factor": "destination_jurisdiction_risk",
       "value": "elevated",
-      "weight": 0.09
+      "weight": 0.09,
+      "weight_source": "ml_model"
     },
     {
       "factor": "purpose_code_match",
       "value": false,
-      "weight": 0.07
+      "weight": 0.07,
+      "weight_source": "rule_engine"
+    },
+    {
+      "factor": "purpose_code_business_incoherence",
+      "value": "agricultural equipment company using SWIFT code 601 (investment securities) for first time in 18-month history",
+      "weight": 0.50,
+      "weight_source": "llm_self_reported"
+    },
+    {
+      "factor": "pep_adjacency_combined_with_pattern_deviation",
+      "value": "PEP-adjacent customer transacting 3.9x their prior maximum — compound risk the ML model scored independently",
+      "weight": 0.50,
+      "weight_source": "llm_self_reported"
     }
   ],
 
@@ -186,6 +217,11 @@
       "step": 12,
       "type": "conclusion",
       "content": "SAR Narrative draft: WHO — Rosen Agricultural Imports LLC (CIF-7731-ROSEN), a US-based agricultural equipment importer rated HIGH risk due to PEP-adjacent relationship (spouse of Latvian ministry official). WHAT — Single outbound wire of $47,000 USD to Vantage Trade Solutions GmbH via Eurobank Privat AG, Liechtenstein, citing investment securities purpose (code 601). WHEN — 2026-05-20, 11:22 UTC. WHERE — Originating bank: [FIRM]; Beneficiary bank: Eurobank Privat AG, Vaduz, Liechtenstein. WHY — Transaction is suspicious because: (1) $47k wire is 3.9x the customer's prior maximum ($12k), inconsistent with established pattern; (2) purpose code 601 (investment securities) is inconsistent with stated business of agricultural equipment import/export and all prior transaction purpose codes; (3) beneficiary jurisdiction (Liechtenstein) has identified AML gaps in beneficial ownership transparency; (4) customer PEP-adjacent risk profile heightens suspicion threshold. No sanctions hits. No structuring indicators. Recommend SAR filing."
+    },
+    {
+      "step": 13,
+      "type": "observation",
+      "content": "Self-reported factor salience for this decision: The two factors I found most decisive — independent of the upstream AML model's individual feature scores — were: (1) Purpose-code and business-purpose incoherence as a compound signal: the upstream model scored 'purpose_code_match=false' as a binary flag and 'customer_risk_rating=high' as a separate dimension. I identified that these two signals amplify each other — a HIGH-risk, PEP-adjacent customer with a previously consistent SWIFT code 102 history suddenly using code 601 is categorically more suspicious than either signal in isolation. This compound interpretation is not reducible to any single upstream feature weight. (2) PEP-adjacency combined with extreme pattern deviation: the $47k wire is not merely large — it is 3.9x a consistent historical maximum for a customer whose PEP-adjacent status means the firm's suspicious-activity threshold is lower than for a standard customer. The upstream model scored transaction amount and risk rating independently; I reasoned about their interaction."
     }
   ],
 

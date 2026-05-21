@@ -1,4 +1,15 @@
 {
+  "_comments": {
+    "overview": "This RECORD document captures a single decision turn by an LLM agent (claude-opus-4-6) acting as a Level 1 communications surveillance analyst under EU MAR Arts. 14 and 16. The communications surveillance platform's NLP classifier flagged a Bloomberg IB chat at 0.94 MNPI probability and invoked the LLM. Data flow: (1) NLP classifier scores the message → computes influencing_parameters[weight_source=ml_model]; information barrier registry produces a boolean breach flag [weight_source=rule_engine]; both injected into prompt; (2) LLM receives prompt → calls five external APIs → receives tool_results; (3) LLM produces chain_of_thought applying MAR Art. 14(3) three-element tipping test + six policy rules; (4) LLM outputs final_action escalating directly to Legal (bypassing L2) with an evidence preservation trigger.",
+    "prompt": "FIELD TYPE: LLM input. Complete text delivered to the LLM: system role (Communications Surveillance Agent), regulatory context (MAR Arts. 14 and 16, FINRA Rule 3110, WSP §7.4), alert summary (Bloomberg chat, sender ID, NLP score, NVDA earnings proximity), and descriptions of five available tools. The upstream NLP classifier score (0.94) appears here as injected context. EU AI Act Art. 12 requires verbatim capture of the full prompt.",
+    "influencing_parameters": "FIELD TYPE: Two-tier. (A) weight_source=ml_model — four features from upstream models: the NLP classifier's MNPI probability score (0.94), temporal proximity to earnings (3 days, from financial calendar), counterparty trade latency in minutes (32, from order flow monitor), and counterparty PnL from the position ($1.84M). (B) weight_source=rule_engine — one boolean output: information_barrier_breach_flag=true, produced deterministically by the information-barrier registry query (Whitfield is listed as full deal-team member for NVDA Project Helix). (C) weight_source=llm_self_reported — two factors the LLM identified in chain_of_thought step 12 as decisive beyond the NLP score: the 'you didn't hear it from me' tipping disclaimer phrase (scienter indicator, ESMA MAR Guidelines §4.3) and the 22-minute deal-room-exit-to-chat latency (temporal transmission path of inside information).",
+    "data_at_decision": "FIELD TYPE: Data provenance inventory. SHA-256 hashes of five external data payloads: Bloomberg communications archive (full message content + metadata), information barrier registry (Whitfield's deal access status), options flow monitor (Apex Capital's NVDA trades), DealTrack access log (deal-room entry/exit + meeting agenda), and proprietary trading book (firm + personal account NVDA positions). Hashes provide tamper-evidence for the evidence package that Legal & Compliance will rely on in any enforcement referral.",
+    "tools_accessed": "FIELD TYPE: API call request log (LLM-initiated). Five external API calls made by the LLM in this order: (1) bloomberg_comms_archive — retrieve full message text and NLP metadata; (2) information_barrier_registry — confirm Whitfield's NVDA deal access and deal-room timestamps; (3) options_flow_monitor — check whether counterparty (Apex Capital) traded NVDA after the chat; (4) dealtrack_access_log — retrieve deal-room entry/exit times and meeting agenda to establish MNPI possession timeline; (5) prop_trading_book — rule out self-dealing by the sender or firm. The LLM chose this call order strategically: message content first, then access proof, then counterparty trading, then bookkeeping cross-reference, then self-dealing exclusion.",
+    "tool_results": "FIELD TYPE: API call response log (LLM-received). Payloads returned by each of the five API calls. Key findings the LLM extracted: Bloomberg archive confirmed 'you didn't hear it from me'; information barrier registry confirmed Whitfield is full deal-team member with deal-room access 12:47 UTC (22 min before chat); options flow showed Apex Capital's 15,000-contract put position opened 32 min after chat; DealTrack confirmed meeting agenda included 'Q2 financial model update — earnings sensitivity analysis'; prop book confirmed zero firm/personal NVDA trading.",
+    "chain_of_thought": "FIELD TYPE: LLM reasoning output. 12 steps. The LLM applied the MAR Art. 14(3) three-element tipping test: (A) possession of inside information — established via DealTrack access log (step 5); (B) disclosure to another person — established via Bloomberg message content (step 3); (C) disclosure outside normal exercise of employment — established by absence of legitimate business reason (step 10). Step 12 is the self-reporting step: the LLM identifies the tipping disclaimer phrase and the 22-minute latency as the factors most probative for any enforcement referral — qualitative inferences beyond what the NLP classifier captured.",
+    "policy_evaluation": "FIELD TYPE: LLM output. Six policy rule verdicts: MNPI keyword detection (fail, 0.94 confidence), information barrier integrity (fail, 0.97), quiet period violation (fail, 0.99), counterparty trading correlation (fail, 0.88), self-dealing check (pass, 0.99), bookkeeping cross-reference (fail, 0.91). Produced by the LLM after reading all five tool results. The self-dealing check passing is important — it means the escalation is for external tipping, not internal front-running.",
+    "final_action": "FIELD TYPE: LLM output. type=escalate_legal — the LLM escalated directly to Legal & Compliance rather than L2, because all three MAR Art. 14(3) criminal tipping elements were satisfied. The escalation_reason field contains four machine-readable codes used by the downstream case management system to trigger: evidence preservation hold on Bloomberg archive, DealTrack records, and options clearing records; and ESMA suspicious transaction report (STR) obligation assessment under MAR Art. 16(2)."
+  },
   "record_id": "d2f5b8a1-4e9c-4d7f-b1e3-8c6a0f2d9b4e",
   "timestamp": "2026-05-20T16:11:08.774Z",
   "agent_id": "comms-surveillance-l1-agent",
@@ -27,27 +38,44 @@
     {
       "factor": "mnpi_keyword_score",
       "value": 0.94,
-      "weight": 0.31
+      "weight": 0.31,
+      "weight_source": "ml_model"
     },
     {
       "factor": "temporal_proximity_to_earnings_days",
       "value": 3,
-      "weight": 0.24
+      "weight": 0.24,
+      "weight_source": "ml_model"
     },
     {
       "factor": "counterparty_trade_latency_minutes",
       "value": 32,
-      "weight": 0.21
+      "weight": 0.21,
+      "weight_source": "ml_model"
     },
     {
       "factor": "information_barrier_breach_flag",
       "value": true,
-      "weight": 0.14
+      "weight": 0.14,
+      "weight_source": "rule_engine"
     },
     {
       "factor": "counterparty_pnl_from_position_usd",
       "value": 1840000,
-      "weight": 0.10
+      "weight": 0.10,
+      "weight_source": "ml_model"
+    },
+    {
+      "factor": "tipping_disclaimer_phrase_detected",
+      "value": "'you didn't hear it from me' — canonical scienter indicator per ESMA MAR Guidelines §4.3",
+      "weight": 0.55,
+      "weight_source": "llm_self_reported"
+    },
+    {
+      "factor": "deal_room_exit_to_chat_latency_minutes",
+      "value": 22,
+      "weight": 0.45,
+      "weight_source": "llm_self_reported"
     }
   ],
 
@@ -186,6 +214,11 @@
       "step": 11,
       "type": "conclusion",
       "content": "This is a high-confidence (combined 0.93) insider tipping case under MAR Art. 14(3). Five of six applicable policy rules fail. The conduct satisfies all three MAR tipping elements. Apex Capital's $1.84M profit establishes clear harm to market integrity. Severity score: 9.1/10. Escalating directly to Legal & Compliance (not L2 analyst) given the criminal tipping threshold and requirement to preserve potential prosecution evidence. ESMA notification obligation under MAR Art. 16(2) may be triggered."
+    },
+    {
+      "step": 12,
+      "type": "observation",
+      "content": "Self-reported factor salience for this decision: The two factors I found most decisive — independent of the NLP classifier's MNPI score and the ML model's feature weights — were: (1) The phrase 'you didn't hear it from me': this is not captured meaningfully by a keyword score. It is a tipping disclaimer that establishes the sender's awareness that the disclosure was improper, which is directly probative of the scienter element in MAR Art. 14(3). The NLP model scored the message at 0.94; this phrase alone would justify escalation to Legal regardless of that score. (2) Deal-room exit to chat latency of 22 minutes: the upstream model provided the information-barrier breach flag as a boolean. What I identified — and what makes this case strong rather than borderline — is the 22-minute gap between Whitfield leaving the deal room (where he received NVDA Q2 financials) and sending the chat. This is not a stale memory or coincidence; it is the direct transmission path of inside information. This temporal specificity is a qualitative inference I drew by cross-referencing the DealTrack timestamps with the Bloomberg message timestamp, and it would be the central fact in any enforcement referral."
     }
   ],
 

@@ -1,4 +1,15 @@
 {
+  "_comments": {
+    "overview": "This RECORD document captures a single decision turn by an LLM agent (claude-opus-4-6) acting as a Level 1 MiFID II trade-surveillance analyst. The upstream surveillance platform detected a potential layering alert and invoked the LLM with a structured prompt. The LLM then called three external APIs to gather evidence, reasoned through five RTS 6 policy rules, and produced a disposition. Data flows in this order: (1) upstream ML detection model runs → computes influencing_parameters[weight_source=ml_model] → injected into prompt; (2) LLM receives prompt → calls tools → receives tool_results; (3) LLM produces chain_of_thought + policy_evaluation + final_action; (4) RECORD document is emitted capturing all layers.",
+    "prompt": "FIELD TYPE: LLM input. The complete text delivered to the LLM before it began reasoning — system role, regulatory context, alert summary, and tool descriptions. This is the full input the LLM saw. EU AI Act Art. 12 requires verbatim capture. The influencing_parameters values (OTR=47.3, cancel_ratio=91%) appear here as context injected by the orchestration layer from the upstream detection model output.",
+    "influencing_parameters": "FIELD TYPE: Two-tier. (A) weight_source=ml_model — five numeric features computed by the upstream surveillance detection model (e.g. gradient-boosted tree trained on historical layering cases) BEFORE the LLM was invoked. Weights are SHAP-style normalised feature importance from that model, not from the LLM. These were serialised into the prompt as context. (B) weight_source=llm_self_reported — three factors the LLM itself identified as decisive in chain_of_thought step 9. These are qualitative inferences (directional cancel bias, exemption inapplicability, recidivism pattern) that the upstream ML model did not capture. Weights are the LLM's self-assessed ordinal salience, normalised to sum to 1.0.",
+    "data_at_decision": "FIELD TYPE: Data provenance inventory (pre-call). A snapshot of the external data sources queried and the SHA-256 hash of each raw response payload. Purpose: tamper-evidence. A regulator or auditor can re-query the same source with the same params and verify the hash matches, proving the LLM saw accurate data. This is distinct from tool_results — data_at_decision is the integrity record; tool_results is the actual payload the LLM read.",
+    "tools_accessed": "FIELD TYPE: API call request log (LLM-initiated). Ordered list of external tool invocations the LLM made during its reasoning loop. Each entry is a request: tool name, UTC timestamp of the call, and the exact query params sent. The LLM decided to call these tools based on its reasoning — they are not pre-fetched. Three tools called: nasdaq_level2_feed (L2 order book), participant_profile (account history + prior alerts), consolidated_tape (market statistics).",
+    "tool_results": "FIELD TYPE: API call response log (LLM-received). Parallel array to tools_accessed, joined by tool_name. Each entry is the structured response the LLM received. Together, tools_accessed + tool_results constitute the complete record of every external data fetch the LLM performed while reasoning. The LLM read these payloads and incorporated them into its chain_of_thought.",
+    "chain_of_thought": "FIELD TYPE: LLM reasoning output. The LLM's intermediate reasoning steps, captured verbatim in the order produced. Steps 1–8 are the LLM's analytical process: retrieving data, evaluating policy rules, testing the market-making exemption hypothesis, and reaching a conclusion. Step 9 is the self-reporting step — the LLM explicitly names which factors it found most decisive and why, independent of the upstream ML model's feature weights. Step 9 is the source of truth for influencing_parameters[weight_source=llm_self_reported].",
+    "policy_evaluation": "FIELD TYPE: LLM output. The LLM's structured verdict on each applicable MiFID II RTS 6 policy rule. Produced entirely by the LLM — not by the upstream detection model, which only flagged the alert. Each verdict (pass/fail/inconclusive/not_applicable) and confidence score reflects the LLM's judgment after reading tool results and applying regulatory logic.",
+    "final_action": "FIELD TYPE: LLM output. The LLM's ultimate recommendation: action type, free-text disposition narrative, severity score (0–10), and whether it escalated. escalated=true triggered the outcome_linkage record in the downstream case management system."
+  },
   "record_id": "a3f8c2e1-7b4d-4f9a-b3e6-2d1c8a0f5e7b",
   "timestamp": "2026-05-20T09:47:33.412Z",
   "agent_id": "trade-surveillance-l1-agent",
@@ -25,27 +36,50 @@
     {
       "factor": "order_cancel_ratio_5min",
       "value": 0.91,
-      "weight": 0.32
+      "weight": 0.32,
+      "weight_source": "ml_model"
     },
     {
       "factor": "order_to_trade_ratio",
       "value": 47.3,
-      "weight": 0.28
+      "weight": 0.28,
+      "weight_source": "ml_model"
     },
     {
       "factor": "price_movement_post_cancel_bps",
       "value": 8.2,
-      "weight": 0.19
+      "weight": 0.19,
+      "weight_source": "ml_model"
     },
     {
       "factor": "spoofed_volume_usd_estimate",
       "value": 2840000,
-      "weight": 0.15
+      "weight": 0.15,
+      "weight_source": "ml_model"
     },
     {
       "factor": "participant_prior_alerts_90d",
       "value": 3,
-      "weight": 0.06
+      "weight": 0.06,
+      "weight_source": "ml_model"
+    },
+    {
+      "factor": "bid_side_directional_cancel_bias",
+      "value": "271 of 284 cancels were bid-side, not randomly distributed",
+      "weight": 0.45,
+      "weight_source": "llm_self_reported"
+    },
+    {
+      "factor": "market_making_exemption_applicable",
+      "value": false,
+      "weight": 0.35,
+      "weight_source": "llm_self_reported"
+    },
+    {
+      "factor": "recidivist_participant_pattern",
+      "value": "two prior L2 escalations for layering in 90 days",
+      "weight": 0.20,
+      "weight_source": "llm_self_reported"
     }
   ],
 
@@ -150,6 +184,11 @@
       "step": 8,
       "type": "conclusion",
       "content": "All RTS 6 policy rules applicable to layering fail with high confidence. The market-making exemption does not apply. The participant has a recidivist alert history. Estimated spoofed notional is $2.84M, which exceeds the firm's $500k mandatory-escalation threshold. I am escalating to L2 with severity score 8.4 / 10."
+    },
+    {
+      "step": 9,
+      "type": "observation",
+      "content": "Self-reported factor salience for this decision: The three factors I found most decisive — independent of the upstream detection model's feature weights — were: (1) bid-side directional cancel bias: 271 of 284 cancels were bid-side, not randomly distributed across the book. A genuine liquidity provider would show symmetric cancellation. This qualitative directional pattern is the strongest single indicator of intent. (2) Market-making exemption inapplicability: ACC-EU-8821 has no market-making agreement and is not a systematic internaliser, eliminating the only plausible legitimate explanation for the OTR and cancel ratio. (3) Recidivism: two prior L2 escalations for layering in 90 days establishes a pattern of wilful conduct rather than error. The upstream model's numeric features (OTR, cancel ratio, price impact) corroborated these conclusions but did not drive them independently."
     }
   ],
 

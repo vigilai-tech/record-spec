@@ -14,7 +14,7 @@ A RECORD trace captures what regulators actually ask for:
 - **What the human did** — override, confirm, or abstain, with a timestamped rationale (EU AI Act Art. 14)
 - **Where the decision landed** — SAR filed, alert escalated, limit adjusted (FinCEN AML NPRM 2026)
 
-Every field is mapped to a specific regulatory article in the accompanying documentation. Four reference examples are included: trade surveillance (MiFID II layering), AML wire-transfer triage (FinCEN SAR), a credit limit decision with a human override (ECOA), and a communication surveillance case where an agent cross-references deal-room access logs against Bloomberg chat content and counterparty options flow to identify MAR Art. 14 insider tipping — and triggers an evidence preservation hold.
+Every field is mapped to a specific regulatory article in the accompanying documentation. Three reference examples are included: trade surveillance (MiFID II layering), AML wire-transfer triage (FinCEN SAR), and a communication surveillance case where an agent cross-references deal-room access logs against Bloomberg chat content and counterparty options flow to identify MAR Art. 14 insider tipping — and triggers an evidence preservation hold.
 
 The schema is Apache 2.0, built as an extension to the OpenInference observability standard, and includes a Python SDK under 300 lines.
 
