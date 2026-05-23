@@ -13,31 +13,88 @@ RECORD v0.1 is a community draft and welcomes contributions under the Apache 2.0
 ## Quick Start
 
 ```bash
-# Validate a RECORD document against the schema
-npx ajv-cli validate -s schema.json -d examples/trade_surveillance_l1.json
-
-# Python
-pip install jsonschema
-python -c "
-import json, jsonschema
-schema = json.load(open('schema.json'))
-doc    = json.load(open('examples/aml_triage.json'))
-jsonschema.validate(doc, schema)
-print('valid')
-"
+pip install record-py
 ```
+
+**Validate a trace against the schema:**
+
+```bash
+record validate examples/aml_triage.json
+# RECORD Schema Validation
+# ════════════════════════════════════════════
+# File:    aml_triage.json
+# Result:  PASS
+#
+# All required fields present and valid.
+```
+
+**Score a trace against a specific regulation:**
+
+```bash
+record gap-analyze examples/aml_triage.json --regulation fincen_nprm_2026
+# RECORD Gap Analysis — FinCEN AML NPRM 2026
+# ════════════════════════════════════════════
+# File:        aml_triage.json
+# Regulation:  fincen_nprm_2026
+#
+# Compliance Score:  100%  COMPLIANT
+#
+# Required Fields (8/8)
+#   ✓  authority_basis                §1010.230
+#   ✓  influencing_parameters         §1010.210
+#   ✓  data_at_decision               §1010.210
+#   ...
+```
+
+Supported regulations: `fincen_nprm_2026`, `eu_ai_act_art86`, `mifid2_rts6`, `sr_11_7`.
+
+**Emit a trace from your own agent:**
+
+```python
+from record_py import RecordEmitter, RecordValidator
+
+emitter = RecordEmitter(
+    agent_id="aml-triage-agent",
+    agent_version="2.1.4",
+    authority_basis=["fincen_aml_nprm_2026.s_1010_320"],
+    operating_domain="supervised",
+)
+doc = emitter.emit(
+    prompt="...",
+    final_action={"type": "draft_sar", "disposition": "...", "escalated": True},
+    chain_of_thought=[{"step": 1, "type": "observation", "content": "..."}],
+)
+result = RecordValidator().validate(doc)
+```
+
+## CLI Reference
+
+| Command | Description |
+|---|---|
+| `record validate <file>` | Validate a JSON trace against the RECORD schema. Exits 1 on failure. |
+| `record gap-analyze <file> --regulation <id>` | Score the trace against a regulation's field requirements. Prints score, status, and reason for every missing field. |
+
+The gap analyzer is the bridge between "schema-valid" and "regulation-compliant." A trace can pass the schema validator but still be missing `data_at_decision` (required by FinCEN §1010.210) or `chain_of_thought` (required by EU AI Act Art. 13). The gap analyzer names every missing field and cites the article that demands it.
 
 ## Repository Structure
 
 ```
 record-spec/
-├── schema.json               # Canonical JSON Schema (draft-07)
-├── REGULATORY_MAPPING.md     # Field → regulation cross-reference
-├── LICENSE                   # Apache 2.0
-└── examples/
-    ├── trade_surveillance_l1.json         # MiFID II layering alert, L1→L2 escalation
-    ├── aml_triage.json                    # AML wire-transfer triage + SAR draft
-    └── communication_surveillance_l1.json # MAR Art.14 insider tipping, direct legal escalation
+├── schema.json                    # Canonical JSON Schema (draft-07)
+├── REGULATORY_MAPPING.md          # Field → regulation cross-reference
+├── LICENSE                        # Apache 2.0
+├── examples/
+│   ├── trade_surveillance_l1.json         # MiFID II layering alert, L1→L2 escalation
+│   ├── aml_triage.json                    # AML wire-transfer triage + SAR draft
+│   └── communication_surveillance_l1.json # MAR Art.14 insider tipping, direct legal escalation
+└── record-py/
+    ├── pyproject.toml             # pip-installable package
+    └── record_py/
+        ├── emitter.py             # RecordEmitter — build and persist traces
+        ├── validator.py           # RecordValidator — schema validation
+        ├── gap_analyzer.py        # GapAnalyzer — per-regulation compliance scoring
+        ├── cli.py                 # `record` CLI entry point
+        └── openinference_adapter.py  # Convert OTel/OpenInference spans to RECORD
 ```
 
 ## Field Requirement Levels

@@ -16,7 +16,15 @@ A RECORD trace captures what regulators actually ask for:
 
 Every field is mapped to a specific regulatory article in the accompanying documentation. Three reference examples are included: trade surveillance (MiFID II layering), AML wire-transfer triage (FinCEN SAR), and a communication surveillance case where an agent cross-references deal-room access logs against Bloomberg chat content and counterparty options flow to identify MAR Art. 14 insider tipping — and triggers an evidence preservation hold.
 
-The schema is Apache 2.0, built as an extension to the OpenInference observability standard, and includes a Python SDK under 300 lines.
+The schema is Apache 2.0, built as an extension to the OpenInference observability standard, and ships with a Python SDK and a CLI that turns the spec from a document into a testable claim:
+
+```
+record gap-analyze trace.json --regulation fincen_nprm_2026
+→ Compliance Score: 87%  PARTIAL
+→ ✗ data_at_decision  §1010.210 — Data sources and integrity hashes proving the AI acted on accurate data
+```
+
+One command tells you exactly which fields your traces are missing and which article demands them.
 
 **https://github.com/[your-org]/record-spec**
 

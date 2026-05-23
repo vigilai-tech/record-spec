@@ -32,9 +32,37 @@ Key fields:
 
 Every field maps to a specific article in the EU AI Act, MiFID II RTS 6, FinCEN's 2026 AML NPRM, SR 11-7, ECOA Reg B, or SOX §302. That mapping is in `REGULATORY_MAPPING.md` in the repo.
 
-**The Python SDK**
+**The Python SDK and CLI**
 
-We included a small reference implementation (`record-py`, ~300 lines):
+We included a small reference implementation (`record-py`, installable via pip) with two interfaces.
+
+A CLI for validation and compliance gap analysis:
+
+```bash
+# Schema validation
+record validate trace.json
+
+# Per-regulation compliance scoring
+record gap-analyze trace.json --regulation fincen_nprm_2026
+record gap-analyze trace.json --regulation eu_ai_act_art86
+record gap-analyze trace.json --regulation mifid2_rts6
+record gap-analyze trace.json --regulation sr_11_7
+```
+
+The gap analyzer is the part we think matters most. It doesn't just tell you "valid" or "invalid" — it scores your trace field-by-field against a specific regulation and names every gap with the article that demands it:
+
+```
+Compliance Score:  87%  PARTIAL
+
+Required Fields (7/8)
+  ✓  authority_basis           §1010.230
+  ✓  influencing_parameters    §1010.210
+  ✗  data_at_decision          §1010.210
+       Data sources and integrity hashes proving the AI acted on accurate, unaltered data
+  ...
+```
+
+And an emitter API for teams building agents from scratch:
 
 ```python
 emitter = RecordEmitter(
@@ -44,7 +72,6 @@ emitter = RecordEmitter(
     operating_domain="supervised",
 )
 doc = emitter.emit(prompt=..., final_action=..., chain_of_thought=...)
-result = RecordValidator("schema.json").validate(doc)
 ```
 
 There's also an `adapt_span()` function that converts an OpenInference span dict into a RECORD dict for teams already instrumented with OTel.
