@@ -1,0 +1,22 @@
+[config]
+model = "groq/llama-3.3-70b-versatile"
+fallback_models = ["groq/llama-3.1-8b-instant"]
+
+[pr_reviewer]
+extra_instructions = """
+This repo is the RECORD open standard — a JSON Schema (draft-07) extension to OpenInference for regulatory compliance in financial AI agents.
+
+When reviewing PRs, pay special attention to:
+- Schema changes in schema.json: check that additionalProperties is kept false, required fields are not silently removed, and new fields include a [REQUIRED/RECOMMENDED/OPTIONAL] tag in their description with dot-notation authority_basis examples.
+- Regulatory citations: any new schema field must have a corresponding entry in REGULATORY_MAPPING.md mapping it to a specific article or section (EU AI Act, MiFID II RTS 6, FinCEN AML NPRM 2026, SR 11-7, ECOA Reg B §202.9, or SOX §302).
+- Example files in examples/: must remain valid against schema.json after any schema change.
+- Python SDK in record-py/: check that RecordEmitter, RecordValidator, and adapt_span stay in sync with schema field names and constraints.
+"""
+require_tests_review = "false"
+
+[pr_code_suggestions]
+num_code_suggestions = 4
+suggestions_score_threshold = 6
+extra_instructions = """
+Prioritise suggestions that would cause schema validation failures or break regulatory traceability (e.g., dropping a required field, weakening a pattern constraint, losing payload_hash from data_at_decision).
+"""
