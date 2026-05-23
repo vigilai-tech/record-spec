@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.backends.legacy:build"
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "record-py"
@@ -16,6 +16,9 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7", "pip-tools"]
+
+[project.scripts]
+record = "record_py.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

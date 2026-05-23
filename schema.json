@@ -75,7 +75,12 @@
             "type": "number",
             "minimum": 0,
             "maximum": 1,
-            "description": "Normalised importance weight assigned by the model. Omit if not available."
+            "description": "Normalised importance weight (0–1). Interpretation depends on weight_source."
+          },
+          "weight_source": {
+            "type": "string",
+            "enum": ["ml_model", "llm_self_reported", "rule_engine", "hybrid"],
+            "description": "How the weight was derived. ml_model: upstream statistical model (SHAP, feature importance). llm_self_reported: the LLM agent explicitly named this factor as decisive in its chain_of_thought. rule_engine: a deterministic rule assigned a fixed priority. hybrid: combination of sources."
           }
         },
         "additionalProperties": false
@@ -322,6 +327,10 @@
         }
       },
       "additionalProperties": false
+    },
+    "_comments": {
+      "type": "object",
+      "description": "[OPTIONAL] Human-readable annotation block explaining how this RECORD document was produced. Keys correspond to field names; values describe what the field contains and which system or layer produced it. Ignored by validators and consumers — present only for developer comprehension."
     },
     "openinference_span_id": {
       "type": "string",
