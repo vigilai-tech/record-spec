@@ -10,12 +10,12 @@ _REGULATIONS: dict[str, dict] = {
         "required": [
             {
                 "field": "authority_basis",
-                "article": "§1010.230",
+                "article": "§1010.210",
                 "reason": "Machine-readable reference to the AML programme requirement the decision addresses",
             },
             {
                 "field": "influencing_parameters",
-                "article": "§1010.210",
+                "article": "§1010.320",
                 "reason": "Transaction attributes that triggered the suspicious-activity disposition must be retained",
             },
             {
@@ -57,12 +57,12 @@ _REGULATIONS: dict[str, dict] = {
             },
             {
                 "field": "chain_of_thought",
-                "article": "§1010.230",
+                "article": "§1010.320",
                 "reason": "Reasoning steps allow examiners to verify the AI programme meets minimum effectiveness criteria",
             },
             {
                 "field": "policy_evaluation",
-                "article": "§1010.230",
+                "article": "§1010.320",
                 "reason": "Per-rule verdicts demonstrate the AML policy ruleset was systematically applied",
             },
         ],
@@ -77,7 +77,7 @@ _REGULATIONS: dict[str, dict] = {
             },
             {
                 "field": "timestamp",
-                "article": "Art. 12(1)(a)",
+                "article": "Art. 12(2)(a)",
                 "reason": "Timestamped logging of AI system outputs",
             },
             {
@@ -87,17 +87,17 @@ _REGULATIONS: dict[str, dict] = {
             },
             {
                 "field": "agent_version",
-                "article": "Art. 12(1)(c)",
+                "article": "Art. 13(3)(c)",
                 "reason": "Version pinning for reproducibility and change management",
             },
             {
                 "field": "schema_version",
-                "article": "Art. 12(1)(c)",
+                "article": "Art. 13(3)(f)",
                 "reason": "Schema version ensures log records remain interpretable as the standard evolves",
             },
             {
                 "field": "prompt",
-                "article": "Art. 12(1)(b)",
+                "article": "Art. 12(2)(b)",
                 "reason": "Verbatim input capture — the single most important reproducibility artefact",
             },
             {
@@ -124,12 +124,12 @@ _REGULATIONS: dict[str, dict] = {
         "recommended": [
             {
                 "field": "model_id",
-                "article": "Art. 13(3)(a)",
+                "article": "Art. 11",
                 "reason": "Foundation model identifier for technical documentation",
             },
             {
                 "field": "policy_evaluation",
-                "article": "Art. 12(1)(b)",
+                "article": "Art. 12(2)(b)",
                 "reason": "Structured policy verdicts demonstrating systematic rule application",
             },
             {
@@ -154,137 +154,60 @@ _REGULATIONS: dict[str, dict] = {
         "required": [
             {
                 "field": "timestamp",
-                "article": "Art. 10(1)",
+                "article": "Art. 16(7)",
                 "reason": "Timestamp granularity sufficient to reconstruct intraday order-flow context",
             },
             {
-                "field": "agent_id",
-                "article": "Art. 10(2)",
-                "reason": "Identity of the algorithmic system responsible for the order",
-            },
-            {
                 "field": "agent_version",
-                "article": "Art. 10(2)",
+                "article": "RTS 6 Art. 11",
                 "reason": "Version of the algorithm logic applied to each order",
             },
             {
                 "field": "prompt",
-                "article": "Art. 10(1)",
+                "article": "RTS 6 Art. 11",
                 "reason": "Input instruction to the algorithmic system — required for reproducibility",
             },
             {
                 "field": "policy_evaluation",
-                "article": "Art. 10(1)(d)",
+                "article": "RTS 6 Art. 15",
                 "reason": "Pre-trade controls evaluated and their outcomes must be logged per order",
             },
             {
                 "field": "tools_accessed",
-                "article": "Art. 10(1)",
+                "article": "RTS 6 Art. 11",
                 "reason": "External data feeds accessed during order evaluation (L2, participant profile)",
             },
             {
                 "field": "data_at_decision",
-                "article": "Art. 10(1)",
+                "article": "RTS 6 Art. 11",
                 "reason": "Tamper-evident data provenance for each external feed used in the decision",
             },
             {
                 "field": "final_action",
-                "article": "Art. 10(1)",
+                "article": "RTS 6 Art. 28",
                 "reason": "Disposition and severity score required for alert-prioritisation audit trail",
             },
         ],
         "recommended": [
             {
-                "field": "influencing_parameters",
-                "article": "Art. 10(1)",
-                "reason": "Quantified feature weights supporting model performance monitoring over time",
-            },
-            {
-                "field": "chain_of_thought",
-                "article": "Art. 10(1)",
-                "reason": "Analytical steps allowing reconstruction of the intraday decision sequence",
-            },
-            {
-                "field": "decision_lineage",
-                "article": "Art. 10(1)",
-                "reason": "Links the RECORD trace to the upstream surveillance alert and case ticket",
-            },
-            {
-                "field": "openinference_span_id",
-                "article": "Art. 10(1)",
-                "reason": "Correlation with OTel observability trace for latency and performance audit",
-            },
-        ],
-    },
-    "sr_11_7": {
-        "name": "Federal Reserve SR 11-7 (Model Risk Management)",
-        "required": [
-            {
-                "field": "agent_id",
-                "article": "§Model Inventory",
-                "reason": "Every model must be catalogued with a stable identifier",
-            },
-            {
-                "field": "agent_version",
-                "article": "§Change Management",
-                "reason": "Model version required to track changes through dev → validation → production",
-            },
-            {
-                "field": "model_id",
-                "article": "§Model Inventory",
-                "reason": "Foundation model identifier required for inventory and vendor risk assessment",
-            },
-            {
-                "field": "prompt",
-                "article": "§Model Documentation",
-                "reason": "Complete input specification — SR 11-7 mandates description of all model inputs",
-            },
-            {
-                "field": "influencing_parameters",
-                "article": "§Model Documentation",
-                "reason": "Input variables and relative importance required in model documentation",
-            },
-            {
-                "field": "chain_of_thought",
-                "article": "§Model Documentation",
-                "reason": "Intermediate reasoning enabling model validation and performance review",
-            },
-            {
-                "field": "policy_evaluation",
-                "article": "§Ongoing Monitoring",
-                "reason": "Per-rule verdicts enable tracking model performance and detecting systematic weaknesses",
-            },
-            {
-                "field": "final_action",
-                "article": "§Use",
-                "reason": "Model output record — severity score enables score-distribution tracking over time",
-            },
-        ],
-        "recommended": [
-            {
-                "field": "data_at_decision",
-                "article": "§Data Quality",
-                "reason": "Evidence that model inputs met data-quality standards at decision time",
-            },
-            {
-                "field": "decision_lineage",
-                "article": "§Audit Trail",
-                "reason": "Multi-step pipeline traceability from final decision back to originating alert",
+                "field": "operating_domain",
+                "article": "RTS 6 Art. 1",
+                "reason": "Human oversight level declaration required by the algorithmic trading framework",
             },
             {
                 "field": "human_disposition",
-                "article": "§Use and Ongoing Monitoring",
-                "reason": "Human override records required to assess whether model outputs were used appropriately",
-            },
-            {
-                "field": "outcome_linkage",
-                "article": "§Ongoing Monitoring",
-                "reason": "Closed-loop outcomes enable tracking whether model escalations produced correct results",
+                "article": "RTS 6 Art. 16",
+                "reason": "Analyst review timestamp and rationale for post-trade surveillance outcomes",
             },
             {
                 "field": "schema_version",
-                "article": "§Change Management",
-                "reason": "Schema versioning ensures audit records remain interpretable across model versions",
+                "article": "RTS 6 Art. 11",
+                "reason": "Schema versioning ensures log records remain interpretable across system upgrades",
+            },
+            {
+                "field": "jurisdiction",
+                "article": "Art. 1",
+                "reason": "Jurisdictional scoping for multi-venue algorithmic trading deployments",
             },
         ],
     },
