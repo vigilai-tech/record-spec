@@ -21,7 +21,6 @@
   "authority_basis": [
     "fincen_aml_nprm_2026.s_1010_230",
     "fincen_aml_nprm_2026.s_1010_320",
-    "sr_11_7.model_risk",
     "sox.s302"
   ],
   "operating_domain": "supervised",

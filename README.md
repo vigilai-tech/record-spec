@@ -6,7 +6,7 @@
 
 RECORD is an open standard that extends the [OpenInference](https://github.com/Arize-ai/openinference) observability specification with fields specifically required for regulatory compliance in financial AI agents. Where OpenInference captures *what* an LLM-based system did (spans, tokens, latency, retrieval), RECORD captures *why* a decision was made, *which rules* were evaluated, *what data* was present at the moment of decision, and *what a human did* with the agent's recommendation — the four dimensions that financial regulators consistently demand during examinations, model-risk reviews, and enforcement proceedings. RECORD traces are designed to be emitted as a single JSON document alongside or within an existing OpenTelemetry/OpenInference span, with no changes required to your existing observability pipeline.
 
-The schema covers every layer of a financial AI agent's audit trail: regulatory authority linkage (`authority_basis`), operating-mode declaration (`operating_domain`), feature-level explainability (`influencing_parameters`), policy-rule evaluation logs (`policy_evaluation`), full chain-of-thought capture, tool-call inventories, data-source provenance hashes, human-disposition records, and downstream outcome linkage. Each field is tagged as **required**, **recommended**, or **optional** and is mapped in [REGULATORY_MAPPING.md](./REGULATORY_MAPPING.md) to the specific article or section of EU AI Act, MiFID II RTS 6, FinCEN AML NPRM 2026, SR 11-7, ECOA Regulation B §202.9, or SOX §302 that motivates its capture. This means compliance teams can use RECORD traces directly as primary evidence in regulatory submissions, model-risk governance packages, or SAR documentation without reformatting or post-hoc reconstruction.
+The schema covers every layer of a financial AI agent's audit trail: regulatory authority linkage (`authority_basis`), operating-mode declaration (`operating_domain`), feature-level explainability (`influencing_parameters`), policy-rule evaluation logs (`policy_evaluation`), full chain-of-thought capture, tool-call inventories, data-source provenance hashes, human-disposition records, and downstream outcome linkage. Each field is tagged as **required**, **recommended**, or **optional** and is mapped in [REGULATORY_MAPPING.md](./REGULATORY_MAPPING.md) to the specific article or section of EU AI Act, MiFID II RTS 6, FinCEN AML NPRM 2026, MAR, SEC 17a-4, FINRA, or BSA/FinCEN that motivates its capture. This means compliance teams can use RECORD traces directly as primary evidence in regulatory submissions, model-risk governance packages, or SAR documentation without reformatting or post-hoc reconstruction.
 
 RECORD v0.1 is a community draft and welcomes contributions under the Apache 2.0 license. Three reference examples are included in the [examples/](./examples/) directory: a MiFID II trade-surveillance layering alert triaged by an L1 agent and escalated to L2 ([trade_surveillance_l1.json](./examples/trade_surveillance_l1.json)), a FinCEN AML wire-transfer triage with SAR narrative generation ([aml_triage.json](./examples/aml_triage.json)), and a MAR Art. 14 communication-surveillance case where an agent detects insider tipping via bookkeeping cross-reference of deal-room access logs, Bloomberg chat content, and counterparty options flow ([communication_surveillance_l1.json](./examples/communication_surveillance_l1.json)). All examples are valid against [schema.json](./schema.json) and are intended to serve as integration templates for teams building compliant AI agents in trading surveillance, financial crime, and communication monitoring domains.
 
@@ -40,13 +40,13 @@ record gap-analyze examples/aml_triage.json --regulation fincen_nprm_2026
 # Compliance Score:  100%  COMPLIANT
 #
 # Required Fields (8/8)
-#   ✓  authority_basis                §1010.230
-#   ✓  influencing_parameters         §1010.210
+#   ✓  authority_basis                §1010.210
+#   ✓  influencing_parameters         §1010.320
 #   ✓  data_at_decision               §1010.210
 #   ...
 ```
 
-Supported regulations: `fincen_nprm_2026`, `eu_ai_act_art86`, `mifid2_rts6`, `sr_11_7`.
+Supported regulations: `fincen_nprm_2026`, `eu_ai_act_art86`, `mifid2_rts6`.
 
 **Emit a trace from your own agent:**
 
