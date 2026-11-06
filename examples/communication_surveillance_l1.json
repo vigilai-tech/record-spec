@@ -11,7 +11,7 @@
     "final_action": "FIELD TYPE: LLM output. type=escalate_legal — the LLM escalated directly to Legal & Compliance rather than L2, because all three MAR Art. 14(3) criminal tipping elements were satisfied. The escalation_reason field contains four machine-readable codes used by the downstream case management system to trigger: evidence preservation hold on Bloomberg archive, DealTrack records, and options clearing records; and ESMA suspicious transaction report (STR) obligation assessment under MAR Art. 16(2)."
   },
   "record_id": "d2f5b8a1-4e9c-4d7f-b1e3-8c6a0f2d9b4e",
-  "timestamp": "2026-05-20T16:11:08.774Z",
+  "timestamp": "2026-05-20T16:11:34.774Z",
   "agent_id": "comms-surveillance-l1-agent",
   "agent_version": "4.0.2",
   "schema_version": "0.1.0",
